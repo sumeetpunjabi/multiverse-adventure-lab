@@ -9,9 +9,9 @@ st.title("🌌 Multiverse Adventure Lab")
 
 st.write(
     """
-Welcome Hero!
+Welcome Explorer!
 
-Choose a universe and meet your characters.
+Choose a universe and meet your characters, Tattu.
 """
 )
 
