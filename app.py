@@ -11,7 +11,7 @@ st.set_page_config(
 )
 
 st.title("🌌 Multiverse Adventure Lab")
-st.write("Welcome Hero! XP can only be earned by completing challenges.")
+st.write("Welcome Hero! Only true explorers can unlock XP.")
 
 # -----------------------------
 # DATA
@@ -48,8 +48,8 @@ if "xp" not in st.session_state:
 if "history" not in st.session_state:
     st.session_state.history = []
 
-if "challenge_done" not in st.session_state:
-    st.session_state.challenge_done = {}
+if "done" not in st.session_state:
+    st.session_state.done = {}
 
 # -----------------------------
 # UNIVERSE + CHARACTER
@@ -61,66 +61,71 @@ st.subheader(f"{character} from {universe}")
 st.info(characters[universe][character])
 
 # -----------------------------
-# CHALLENGE SYSTEM
+# CHALLENGES (HIDDEN TITLES)
 # -----------------------------
-st.write("## ⚔️ Challenges (Complete to earn XP)")
+st.write("## ⚔️ Trials of the Multiverse")
 
+# IMPORTANT: Titles are now intentionally vague
 challenges = {
     "Pokemon": [
-        ("⚡ Thunder Focus Test", "Answer: Pikachu is an Electric type", "electric"),
-        ("🔥 Fire Knowledge Trial", "Which type beats Fire?", "water"),
-        ("🌿 Evolution Puzzle", "Eevee evolves into how many main forms?", "8")
+        ("Trial of Storms", "This creature stores electricity in its cheeks. What type is it?", "electric"),
+        ("Trial of Elements", "Which element defeats flame in battle logic?", "water"),
+        ("Trial of Evolution", "This creature has multiple final forms. How many main evolutions exist for it?", "8")
     ],
     "Wings of Fire": [
-        ("🐉 Dragon Loyalty Test", "Clay is part of which tribe?", "mudwing"),
-        ("🌈 RainWing Riddle", "Glory belongs to which tribe?", "rainwing"),
-        ("☀️ Desert Survival", "Sunny is a...?", "sandwing")
+        ("Trial of Loyalty", "This dragon belongs to the tribe known for mud and strength.", "mudwing"),
+        ("Trial of Rain", "Which tribe is known for rainforest camouflage and venom spit?", "rainwing"),
+        ("Trial of Sands", "Which tribe survives in the desert under harsh sun?", "sandwing")
     ],
     "LEGO": [
-        ("🔴 Fire Trial", "Kai controls what element?", "fire"),
-        ("🟢 Leadership Test", "Who is the Green Ninja?", "lloyd"),
-        ("🤖 Ice Logic", "Zane is part human or robot?", "robot")
+        ("Trial of Flames", "Which element is controlled by the red ninja?", "fire"),
+        ("Trial of Leadership", "Who is the green ninja destined to lead?", "lloyd"),
+        ("Trial of Frost", "Which ninja is part machine and controls ice?", "zane")
     ],
     "Mario": [
-        ("🍄 Mushroom Quiz", "Who is Mario’s brother?", "luigi"),
-        ("👻 Ghost House", "Luigi is known for being?", "brave"),
-        ("🦖 Dino Friend", "Yoshi is what kind of creature?", "dino")
+        ("Trial of Shadows", "Who is the brother of the main red hero?", "luigi"),
+        ("Trial of Courage", "This character is known for bravery despite fear.", "luigi"),
+        ("Trial of Beasts", "What dinosaur-like companion travels with Mario?", "yoshi")
     ]
 }
 
-selected_challenges = challenges[universe]
+selected = challenges[universe]
 
 # -----------------------------
-# DISPLAY CHALLENGES
+# GAME LOOP
 # -----------------------------
-for i, (title, question, answer) in enumerate(selected_challenges):
-    st.write(f"### {title}")
+for i, (title, question, answer) in enumerate(selected):
+
+    st.write("### 🔮 Unknown Trial")
     st.write(question)
 
     key = f"{universe}_{i}"
 
-    if key not in st.session_state.challenge_done:
-        user_input = st.text_input(f"Your answer for Challenge {i+1}", key=key)
+    if key not in st.session_state.done:
 
-        if st.button(f"Submit Challenge {i+1}", key=f"btn_{key}"):
-            if user_input.lower().strip() == answer:
-                st.success("Correct! +20 XP 🎉")
-                st.session_state.xp += 20
-                st.session_state.challenge_done[key] = True
+        user_answer = st.text_input("Your answer", key=key)
+
+        if st.button("Submit", key=f"btn_{key}"):
+
+            if user_answer.lower().strip() == answer:
+                st.success("Correct! +25 XP earned ⚡")
+                st.session_state.xp += 25
+                st.session_state.done[key] = True
 
                 st.session_state.history.append(
-                    f"{character} completed '{title}' in {universe}"
+                    f"{character} conquered a hidden trial in {universe}"
                 )
+
             else:
-                st.error("Wrong answer! Try again ❌")
+                st.error("Incorrect... the multiverse rejects your answer ❌")
 
     else:
-        st.success("Completed ✅")
+        st.success("Trial already completed ✅")
 
 # -----------------------------
 # XP SYSTEM
 # -----------------------------
-st.write("## ⭐ Progress")
+st.write("## ⭐ Hero Progress")
 
 st.metric("XP", st.session_state.xp)
 st.progress((st.session_state.xp % 100) / 100)
@@ -128,18 +133,18 @@ st.progress((st.session_state.xp % 100) / 100)
 # -----------------------------
 # JOURNEY LOG
 # -----------------------------
-st.write("## 📜 Adventure Log")
+st.write("## 📜 Chronicle of Adventures")
 
 if st.session_state.history:
     for h in reversed(st.session_state.history):
         st.write("•", h)
 else:
-    st.write("No completed challenges yet...")
+    st.write("No trials conquered yet...")
 
 # -----------------------------
-# STATS PANEL
+# STATS
 # -----------------------------
-st.write("## 📊 World Stats")
+st.write("## 📊 Multiverse Status")
 
 col1, col2 = st.columns(2)
 
@@ -147,4 +152,4 @@ with col1:
     st.metric("Universe", universe)
 
 with col2:
-    st.metric("Challenges Available", len(selected_challenges))
+    st.metric("Active Trials", len(selected))
