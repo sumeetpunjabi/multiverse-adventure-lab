@@ -11,8 +11,7 @@ st.set_page_config(
 )
 
 st.title("🌌 Multiverse Adventure Lab")
-
-st.write("Welcome Hero! Explore universes, meet characters, and create your story.")
+st.write("Welcome Hero! XP can only be earned by completing challenges.")
 
 # -----------------------------
 # DATA
@@ -20,129 +19,132 @@ st.write("Welcome Hero! Explore universes, meet characters, and create your stor
 characters = {
     "Pokemon": {
         "Pikachu": "Electric mouse with thunder power ⚡",
-        "Charizard": "Fire-breathing dragon lizard 🔥",
-        "Eevee": "Evolution master with many forms 🌟"
+        "Charizard": "Fire-breathing dragon 🔥",
+        "Eevee": "Evolution master 🌟"
     },
     "Wings of Fire": {
-        "Clay": "Strong and loyal MudWing 🐉",
-        "Glory": "RainWing queen with venom strike 🐍",
-        "Sunny": "Optimistic SandWing ☀️"
+        "Clay": "Strong MudWing 🐉",
+        "Glory": "RainWing queen 🐍",
+        "Sunny": "Bright SandWing ☀️"
     },
     "LEGO": {
-        "Kai": "Fire ninja of speed 🔴",
-        "Lloyd": "Green ninja leader 🟢",
-        "Zane": "Ice-powered robot 🤖"
+        "Kai": "Fire ninja 🔴",
+        "Lloyd": "Green ninja 🟢",
+        "Zane": "Ice robot 🤖"
     },
     "Mario": {
-        "Mario": "Hero of the Mushroom Kingdom 🍄",
-        "Luigi": "Brave but nervous brother 👻",
-        "Yoshi": "Dino companion with a big heart 🦖"
+        "Mario": "Hero of Mushroom Kingdom 🍄",
+        "Luigi": "Brave brother 👻",
+        "Yoshi": "Dino companion 🦖"
     }
 }
 
 # -----------------------------
-# UNIVERSE SELECT
-# -----------------------------
-universe = st.selectbox(
-    "Choose a Universe 🌍",
-    list(characters.keys())
-)
-
-st.subheader(f"Welcome to {universe}")
-
-# -----------------------------
-# CHARACTER SELECT
-# -----------------------------
-selected_character = st.selectbox(
-    "Pick your character",
-    list(characters[universe].keys())
-)
-
-st.write("### Character Profile")
-st.info(characters[universe][selected_character])
-
-# -----------------------------
-# ACTION SYSTEM
-# -----------------------------
-st.write("## 🎮 Actions")
-
-action = st.radio(
-    "What do you want to do?",
-    ["Talk", "Train", "Adventure"]
-)
-
-if action == "Talk":
-    st.success(f"{selected_character} says: 'Hello traveler from {universe}!' 🗣️")
-
-elif action == "Train":
-    st.warning(f"{selected_character} is powering up... training arc activated 💪⚡")
-
-elif action == "Adventure":
-    st.error(f"{selected_character} enters a dangerous quest in {universe} 🌌🔥")
-
-# -----------------------------
-# RANDOM EVENTS
-# -----------------------------
-st.write("## 🎲 Random Events")
-
-if st.button("Trigger Event"):
-    events = [
-        "A wild challenge appears!",
-        "You discovered a hidden power-up!",
-        "A rival appears from another universe!",
-        "Legendary artifact found!",
-        "Time distortion detected... reality shifts!"
-    ]
-    st.info(random.choice(events))
-
-# -----------------------------
-# XP SYSTEM (SESSION STATE)
+# SESSION STATE
 # -----------------------------
 if "xp" not in st.session_state:
     st.session_state.xp = 0
 
+if "history" not in st.session_state:
+    st.session_state.history = []
+
+if "challenge_done" not in st.session_state:
+    st.session_state.challenge_done = {}
+
+# -----------------------------
+# UNIVERSE + CHARACTER
+# -----------------------------
+universe = st.selectbox("Choose Universe 🌍", list(characters.keys()))
+character = st.selectbox("Choose Character 👤", list(characters[universe].keys()))
+
+st.subheader(f"{character} from {universe}")
+st.info(characters[universe][character])
+
+# -----------------------------
+# CHALLENGE SYSTEM
+# -----------------------------
+st.write("## ⚔️ Challenges (Complete to earn XP)")
+
+challenges = {
+    "Pokemon": [
+        ("⚡ Thunder Focus Test", "Answer: Pikachu is an Electric type", "electric"),
+        ("🔥 Fire Knowledge Trial", "Which type beats Fire?", "water"),
+        ("🌿 Evolution Puzzle", "Eevee evolves into how many main forms?", "8")
+    ],
+    "Wings of Fire": [
+        ("🐉 Dragon Loyalty Test", "Clay is part of which tribe?", "mudwing"),
+        ("🌈 RainWing Riddle", "Glory belongs to which tribe?", "rainwing"),
+        ("☀️ Desert Survival", "Sunny is a...?", "sandwing")
+    ],
+    "LEGO": [
+        ("🔴 Fire Trial", "Kai controls what element?", "fire"),
+        ("🟢 Leadership Test", "Who is the Green Ninja?", "lloyd"),
+        ("🤖 Ice Logic", "Zane is part human or robot?", "robot")
+    ],
+    "Mario": [
+        ("🍄 Mushroom Quiz", "Who is Mario’s brother?", "luigi"),
+        ("👻 Ghost House", "Luigi is known for being?", "brave"),
+        ("🦖 Dino Friend", "Yoshi is what kind of creature?", "dino")
+    ]
+}
+
+selected_challenges = challenges[universe]
+
+# -----------------------------
+# DISPLAY CHALLENGES
+# -----------------------------
+for i, (title, question, answer) in enumerate(selected_challenges):
+    st.write(f"### {title}")
+    st.write(question)
+
+    key = f"{universe}_{i}"
+
+    if key not in st.session_state.challenge_done:
+        user_input = st.text_input(f"Your answer for Challenge {i+1}", key=key)
+
+        if st.button(f"Submit Challenge {i+1}", key=f"btn_{key}"):
+            if user_input.lower().strip() == answer:
+                st.success("Correct! +20 XP 🎉")
+                st.session_state.xp += 20
+                st.session_state.challenge_done[key] = True
+
+                st.session_state.history.append(
+                    f"{character} completed '{title}' in {universe}"
+                )
+            else:
+                st.error("Wrong answer! Try again ❌")
+
+    else:
+        st.success("Completed ✅")
+
+# -----------------------------
+# XP SYSTEM
+# -----------------------------
 st.write("## ⭐ Progress")
 
-col1, col2 = st.columns(2)
-
-with col1:
-    if st.button("Gain XP"):
-        st.session_state.xp += 10
-
-with col2:
-    st.write("Current XP:")
-    st.metric("XP", st.session_state.xp)
-
+st.metric("XP", st.session_state.xp)
 st.progress((st.session_state.xp % 100) / 100)
 
 # -----------------------------
 # JOURNEY LOG
 # -----------------------------
-if "history" not in st.session_state:
-    st.session_state.history = []
-
-if st.button("Save Adventure"):
-    st.session_state.history.append(
-        f"{selected_character} in {universe} doing {action}"
-    )
-
-st.write("## 📜 Your Journey Log")
+st.write("## 📜 Adventure Log")
 
 if st.session_state.history:
-    for h in st.session_state.history[::-1]:
+    for h in reversed(st.session_state.history):
         st.write("•", h)
 else:
-    st.write("No adventures yet... start your journey!")
+    st.write("No completed challenges yet...")
 
 # -----------------------------
 # STATS PANEL
 # -----------------------------
 st.write("## 📊 World Stats")
 
-col3, col4 = st.columns(2)
+col1, col2 = st.columns(2)
 
-with col3:
+with col1:
     st.metric("Universe", universe)
 
-with col4:
-    st.metric("Characters", len(characters[universe]))
+with col2:
+    st.metric("Challenges Available", len(selected_challenges))
